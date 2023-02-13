@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -6,6 +7,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase_app/ui/auth/signup_screen.dart';
 import 'package:flutter_firebase_app/widgets/round_button.dart';
+
+import '../welcome.dart';
 
 class Loginscreen extends StatefulWidget {
   const Loginscreen({super.key});
@@ -18,6 +21,24 @@ class _LoginscreenState extends State<Loginscreen> {
   final _formKey = GlobalKey<FormState>();
   final emailConroller = TextEditingController();
   final passWordController = TextEditingController();
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  bool loading = false;
+
+  void login() {
+    _auth
+        .signInWithEmailAndPassword(
+            email: emailConroller.text.toString(),
+            password: passWordController.text.toString())
+        .then((value) {
+      setState(() {
+        loading = false;
+      });
+       Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const WelcomeScreen()));
+    }).onError((error, stackTrace) {});
+  }
 
   @override
   void dispose() {
@@ -86,8 +107,11 @@ class _LoginscreenState extends State<Loginscreen> {
                 ),
                 RoundButton(
                   text: "Login",
+                  loading: loading,
                   onTap: (() {
-                    if (_formKey.currentState!.validate()) {}
+                    if (_formKey.currentState!.validate()) {
+                      login();
+                    }
                   }),
                 ),
                 Row(

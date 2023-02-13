@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 class RoundButton extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
-  const RoundButton({super.key, required this.text,required this.onTap});
+  final bool loading;
+  const RoundButton({super.key, required this.text, required this.onTap,this.loading=false});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,8 @@ class RoundButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             color: Colors.amber.shade200),
         child: Center(
-            child: Text(
+            child:loading? CircularProgressIndicator(strokeWidth: 3,color: Colors.black,) 
+            :Text(
           text,
           style: TextStyle(
               color: Colors.brown.shade700,

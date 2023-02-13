@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-
 import '../../widgets/round_button.dart';
 import 'login_screen.dart';
 
@@ -17,6 +16,27 @@ class _SignupScreenState extends State<SignupScreen> {
   final emailConroller = TextEditingController();
   final passWordController = TextEditingController();
   FirebaseAuth _auth = FirebaseAuth.instance;
+  bool loading = false;
+  void signUp(){
+    setState(() {
+                      loading = true;
+                    });
+                    _auth
+                        .createUserWithEmailAndPassword(
+                            email: emailConroller.text.toString(),
+                            password: passWordController.text.toString())
+                        .then((value) {
+                           setState(() {
+                      loading = false;
+                    });
+                        })
+                        .onError((error, stackTrace) {
+                      // Utils().toastMessage(error.toString());
+                       setState(() {
+                      loading = false;
+                    });
+                    });
+  }
 
   @override
   void dispose() {
@@ -79,16 +99,11 @@ class _SignupScreenState extends State<SignupScreen> {
                 height: 20,
               ),
               RoundButton(
+                loading: loading,
                 text: "Sign Up",
                 onTap: (() {
                   if (_formKey.currentState!.validate()) {
-                    _auth.createUserWithEmailAndPassword(
-                        email: emailConroller.text.toString(),
-                        password: passWordController.text.toString());
-                    //     .then((value) {})
-                    //     .onError((error, stackTrace) {
-                    //   Utils().toastMessage(error.toString());
-                    // });
+                    signUp();
                   }
                 }),
               ),
