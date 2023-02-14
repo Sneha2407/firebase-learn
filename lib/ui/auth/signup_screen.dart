@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../widgets/google_button.dart';
 import '../../widgets/round_button.dart';
+import '../welcome.dart';
+import 'auth_service.dart';
 import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -17,25 +20,27 @@ class _SignupScreenState extends State<SignupScreen> {
   final passWordController = TextEditingController();
   FirebaseAuth _auth = FirebaseAuth.instance;
   bool loading = false;
-  void signUp(){
+  bool gloading = false;
+  void signUp() {
     setState(() {
-                      loading = true;
-                    });
-                    _auth
-                        .createUserWithEmailAndPassword(
-                            email: emailConroller.text.toString(),
-                            password: passWordController.text.toString())
-                        .then((value) {
-                           setState(() {
-                      loading = false;
-                    });
-                        })
-                        .onError((error, stackTrace) {
-                      // Utils().toastMessage(error.toString());
-                       setState(() {
-                      loading = false;
-                    });
-                    });
+      loading = true;
+    });
+    _auth
+        .createUserWithEmailAndPassword(
+            email: emailConroller.text.toString(),
+            password: passWordController.text.toString())
+        .then((value) {
+      setState(() {
+        loading = false;
+      });
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const WelcomeScreen()));
+    }).onError((error, stackTrace) {
+      // Utils().toastMessage(error.toString());
+      setState(() {
+        loading = false;
+      });
+    });
   }
 
   @override
@@ -123,7 +128,21 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                   )
                 ],
-              )
+              ),
+              GoogleButton(onTap: (() {
+                setState(() {
+                  gloading = true;
+                });
+                AuthService().signInWithGoogle().then((value) {
+                  setState(() {
+                    gloading = false;
+                  });
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const WelcomeScreen()));
+                });
+              }))
             ]),
       ),
     );

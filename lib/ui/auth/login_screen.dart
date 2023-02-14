@@ -5,7 +5,9 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase_app/ui/auth/auth_service.dart';
 import 'package:flutter_firebase_app/ui/auth/signup_screen.dart';
+import 'package:flutter_firebase_app/widgets/google_button.dart';
 import 'package:flutter_firebase_app/widgets/round_button.dart';
 
 import '../welcome.dart';
@@ -23,6 +25,7 @@ class _LoginscreenState extends State<Loginscreen> {
   final passWordController = TextEditingController();
   FirebaseAuth _auth = FirebaseAuth.instance;
   bool loading = false;
+  bool gloading = false;
 
   void login() {
     _auth
@@ -33,10 +36,8 @@ class _LoginscreenState extends State<Loginscreen> {
       setState(() {
         loading = false;
       });
-       Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const WelcomeScreen()));
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const WelcomeScreen()));
     }).onError((error, stackTrace) {});
   }
 
@@ -59,79 +60,95 @@ class _LoginscreenState extends State<Loginscreen> {
         appBar: AppBar(title: Text("Login"), automaticallyImplyLeading: false),
         body: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Form(
-                  key: _formKey,
-                  child: Column(
+          child: SingleChildScrollView(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: emailConroller,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(
+                              label: Text("Email"),
+                              hintText: "abc@gmail.com",
+                              prefixIcon: Icon(Icons.alternate_email)),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "Enter Email";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          controller: passWordController,
+                          // obscuringCharacter: "*",
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                              label: Text("Password"),
+                              hintText: "Password",
+                              prefixIcon: Icon(Icons.lock)),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "Enter Password";
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  RoundButton(
+                    text: "Login",
+                    loading: loading,
+                    onTap: (() {
+                      if (_formKey.currentState!.validate()) {
+                        login();
+                      }
+                    }),
+                  ),
+                  Row(
                     children: [
-                      TextFormField(
-                        controller: emailConroller,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                            label: Text("Email"),
-                            hintText: "abc@gmail.com",
-                            prefixIcon: Icon(Icons.alternate_email)),
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return "Enter Email";
-                          }
-                          return null;
+                      Text("Dont have an account?"),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SignupScreen()));
                         },
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      TextFormField(
-                        controller: passWordController,
-                        // obscuringCharacter: "*",
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                            label: Text("Password"),
-                            hintText: "Password",
-                            prefixIcon: Icon(Icons.lock)),
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return "Enter Password";
-                          }
-                          return null;
-                        },
-                      ),
+                        child: Text(
+                          "Sign up",
+                          style: TextStyle(color: Colors.amber.shade700),
+                        ),
+                      )
                     ],
                   ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                RoundButton(
-                  text: "Login",
-                  loading: loading,
-                  onTap: (() {
-                    if (_formKey.currentState!.validate()) {
-                      login();
-                    }
-                  }),
-                ),
-                Row(
-                  children: [
-                    Text("Dont have an account?"),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const SignupScreen()));
-                      },
-                      child: Text(
-                        "Sign up",
-                        style: TextStyle(color: Colors.amber.shade700),
-                      ),
-                    )
-                  ],
-                )
-              ]),
+                  GoogleButton(onTap: (() {
+                    setState(() {
+                        gloading = true;
+                      });
+                    AuthService().signInWithGoogle().then((value) {
+                      setState(() {
+                        gloading = false;
+                      });
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const WelcomeScreen()));
+                    });
+                  }))
+                ]),
+          ),
         ),
       ),
     );
