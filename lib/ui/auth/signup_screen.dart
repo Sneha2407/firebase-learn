@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../utils/snack.dart';
 import '../../widgets/google_button.dart';
 import '../../widgets/round_button.dart';
 import '../welcome.dart';
@@ -33,10 +34,12 @@ class _SignupScreenState extends State<SignupScreen> {
       setState(() {
         loading = false;
       });
+      successSnackBar(context, "Sign in Succesful");
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => const WelcomeScreen()));
     }).onError((error, stackTrace) {
       // Utils().toastMessage(error.toString());
+      errorSnackBar(context, error.toString());
       setState(() {
         loading = false;
       });
@@ -57,93 +60,98 @@ class _SignupScreenState extends State<SignupScreen> {
       appBar: AppBar(title: Text("Sign Up"), automaticallyImplyLeading: false),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Form(
-                key: _formKey,
-                child: Column(
+        child: SingleChildScrollView(
+          child: Column(
+              // mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Center(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: emailConroller,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(
+                              label: Text("Email"),
+                              hintText: "abc@gmail.com",
+                              prefixIcon: Icon(Icons.alternate_email)),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "Enter Email";
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          controller: passWordController,
+                          // obscuringCharacter: "*",
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                              label: Text("Password"),
+                              hintText: "Password",
+                              prefixIcon: Icon(Icons.lock)),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "Enter Password";
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                RoundButton(
+                  loading: loading,
+                  text: "Sign Up",
+                  onTap: (() {
+                    if (_formKey.currentState!.validate()) {
+                      signUp();
+                    }
+                  }),
+                ),
+                Row(
                   children: [
-                    TextFormField(
-                      controller: emailConroller,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                          label: Text("Email"),
-                          hintText: "abc@gmail.com",
-                          prefixIcon: Icon(Icons.alternate_email)),
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "Enter Email";
-                        }
-                        return null;
+                    Text("Already have an account?"),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Loginscreen()));
                       },
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    TextFormField(
-                      controller: passWordController,
-                      // obscuringCharacter: "*",
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                          label: Text("Password"),
-                          hintText: "Password",
-                          prefixIcon: Icon(Icons.lock)),
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "Enter Password";
-                        }
-                        return null;
-                      },
-                    ),
+                      child: Text(
+                        "Login",
+                        style: TextStyle(color: Colors.amber.shade700),
+                      ),
+                    )
                   ],
                 ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              RoundButton(
-                loading: loading,
-                text: "Sign Up",
-                onTap: (() {
-                  if (_formKey.currentState!.validate()) {
-                    signUp();
-                  }
-                }),
-              ),
-              Row(
-                children: [
-                  Text("Already have an account?"),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Loginscreen()));
-                    },
-                    child: Text(
-                      "Login",
-                      style: TextStyle(color: Colors.amber.shade700),
-                    ),
-                  )
-                ],
-              ),
-              GoogleButton(onTap: (() {
-                setState(() {
-                  gloading = true;
-                });
-                AuthService().signInWithGoogle().then((value) {
+                GoogleButton(onTap: (() {
                   setState(() {
-                    gloading = false;
+                    gloading = true;
                   });
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const WelcomeScreen()));
-                });
-              }))
-            ]),
+                  AuthService().signInWithGoogle().then((value) {
+                    setState(() {
+                      gloading = false;
+                    });
+                    successSnackBar(context, "Google Sign in Succesful");
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const WelcomeScreen()));
+                  });
+                }))
+              ]),
+        ),
       ),
     );
   }

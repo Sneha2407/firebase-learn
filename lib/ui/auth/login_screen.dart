@@ -7,6 +7,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase_app/ui/auth/auth_service.dart';
 import 'package:flutter_firebase_app/ui/auth/signup_screen.dart';
+import 'package:flutter_firebase_app/utils/snack.dart';
 import 'package:flutter_firebase_app/widgets/google_button.dart';
 import 'package:flutter_firebase_app/widgets/round_button.dart';
 
@@ -36,9 +37,12 @@ class _LoginscreenState extends State<Loginscreen> {
       setState(() {
         loading = false;
       });
+      successSnackBar(context, "Log in Successful");
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => const WelcomeScreen()));
-    }).onError((error, stackTrace) {});
+    }).onError((error, stackTrace) {
+      errorSnackBar(context, error.toString());
+    });
   }
 
   @override
@@ -135,12 +139,13 @@ class _LoginscreenState extends State<Loginscreen> {
                   ),
                   GoogleButton(onTap: (() {
                     setState(() {
-                        gloading = true;
-                      });
+                      gloading = true;
+                    });
                     AuthService().signInWithGoogle().then((value) {
                       setState(() {
                         gloading = false;
                       });
+                      successSnackBar(context, "Google Sign in Succesful");
                       Navigator.push(
                           context,
                           MaterialPageRoute(
