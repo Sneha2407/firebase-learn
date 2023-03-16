@@ -67,6 +67,7 @@ class _SignupScreenState extends State<SignupScreen> {
               // mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                const SizedBox( height: 60,),
                 Center(
                   child: Form(
                     key: _formKey,
