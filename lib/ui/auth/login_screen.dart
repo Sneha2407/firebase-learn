@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_firebase_app/ui/auth/auth_service.dart';
 import 'package:flutter_firebase_app/ui/auth/signup_screen.dart';
 import 'package:flutter_firebase_app/utils/snack.dart';
+import 'package:flutter_firebase_app/widgets/facebook_button.dart';
 import 'package:flutter_firebase_app/widgets/google_button.dart';
 import 'package:flutter_firebase_app/widgets/round_button.dart';
 
@@ -27,6 +28,7 @@ class _LoginscreenState extends State<Loginscreen> {
   FirebaseAuth _auth = FirebaseAuth.instance;
   bool loading = false;
   bool gloading = false;
+  bool floading = false;
 
   void login() {
     _auth
@@ -150,8 +152,31 @@ class _LoginscreenState extends State<Loginscreen> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => const WelcomeScreen()));
+                    }).onError((error, stackTrace) {
+                        errorSnackBar(context, error.toString());
+                      });
+
+
+                  })),
+
+                  SizedBox(height: 20,),
+
+                  FacebookButton(onTap: (() {
+                    setState(() {
+                      floading = true;
                     });
-                  }))
+                    AuthService().signInWithFacebook().then((value) {
+                      setState(() {
+                        floading = false;
+                      });
+                      successSnackBar(context, "Facebook Sign in Succesful");
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const WelcomeScreen()));
+                    });
+                    
+                    })),
                 ]),
           ),
         ),
